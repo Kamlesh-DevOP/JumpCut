@@ -23,5 +23,11 @@ export function useSession() {
     return data;
   }
 
-  return { session, startSession, recordHop, undo };
+  async function getHint(sessionId) {
+    const { data } = await api.get(`/api/v1/session/${sessionId}/hint`);
+    setSession(data.session);
+    return data;
+  }
+
+  return { session, startSession, recordHop, undo, getHint };
 }

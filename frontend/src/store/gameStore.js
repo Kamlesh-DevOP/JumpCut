@@ -11,6 +11,9 @@ const initialState = {
   undosLeft: 3,
   score: null,
   optimalPath: [],
+  hintsUsed: 0,
+  hintMovies: [],
+  isHintVisible: false,
   status: 'in_progress',
   language: 'tamil',
   difficulty: 'easy',
@@ -40,6 +43,9 @@ export const useGameStore = create((set, get) => ({
         undosLeft: 3 - (session.undos_used ?? 0),
         score: session.score ?? null,
         optimalPath: session.optimal_path ?? (puzzleOverride ? [] : state.optimalPath),
+        hintsUsed: session.hints_used ?? 0,
+        hintMovies: puzzleOverride ? [] : state.hintMovies,
+        isHintVisible: puzzleOverride ? false : state.isHintVisible,
         status: session.status,
         currentMovie: lastMovieHop ? toMovie(lastMovieHop) : puzzle.start_movie,
         currentActor: isActor ? toActor(lastHop) : null,
@@ -51,6 +57,8 @@ export const useGameStore = create((set, get) => ({
     }),
   setCast: (cast) => set({ cast }),
   setActorMovies: (actorMovies) => set({ actorMovies }),
+  setHintResult: (session, movies) => set({ hintsUsed: session.hints_used ?? 0, hintMovies: movies, isHintVisible: true }),
+  setHintVisibility: (isHintVisible) => set({ isHintVisible }),
   resetGame: () => set(initialState)
 }));
 

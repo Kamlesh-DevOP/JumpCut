@@ -1,8 +1,9 @@
-import { Check, Clapperboard, RotateCcw } from 'lucide-react';
+import { Check, Clapperboard, Lightbulb, RotateCcw } from 'lucide-react';
 import { useEffect } from 'react';
 
 import { CastGrid } from '../components/game/CastGrid.jsx';
 import { HopCounter } from '../components/game/HopCounter.jsx';
+import { HintPanel } from '../components/game/HintPanel.jsx';
 import { MovieGrid } from '../components/game/MovieGrid.jsx';
 import { PathTracker } from '../components/game/PathTracker.jsx';
 import { SolvedModal } from '../components/game/SolvedModal.jsx';
@@ -28,7 +29,7 @@ const difficulties = [
 
 export function Play() {
   const { loadPuzzle, isLoading, error: puzzleError } = usePuzzle();
-  const { startSession, recordHop, undo } = useSession();
+  const { startSession, recordHop, undo, getHint } = useSession();
   const game = useGame();
   const store = useGameStore();
 
@@ -93,13 +94,24 @@ export function Play() {
             {game.view === 'movie_cast' ? game.currentMovie?.title : `${game.currentActor?.name}'s movies`}
           </h1>
         </div>
-        <Button variant="secondary" onClick={() => game.undo(undo)} disabled={game.undosLeft <= 0 || game.path.length === 0}>
-          <RotateCcw size={16} />
-          Undo
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="secondary"
+            onClick={() => game.hintMovies.length > 0 ? game.setHintVisibility(!game.isHintVisible) : game.revealHint(getHint)}
+            disabled={game.isLoadingHint}
+          >
+            <Lightbulb size={16} />
+            {game.isLoadingHint ? 'Loading hint' : game.hintMovies.length > 0 ? game.isHintVisible ? 'Hide hint' : 'Show hint' : game.hintsUsed ? 'Show hint' : 'Reveal hint'}
+          </Button>
+          <Button variant="secondary" onClick={() => game.undo(undo)} disabled={game.undosLeft <= 0 || game.path.length === 0}>
+            <RotateCcw size={16} />
+            Undo
+          </Button>
+        </div>
       </div>
 
       {game.error && <p className="border border-[#E4B0A8] bg-[#F4DED9] p-3 text-sm text-[#64211E]">{game.error}</p>}
+      <HintPanel movies={game.isHintVisible ? game.hintMovies : []} />
       {game.isLoadingChoices && <Spinner label="Loading choices" />}
       {!game.isLoadingChoices && game.view === 'movie_cast' && (
         <CastGrid cast={game.cast} onSelectActor={(actor) => game.selectActor(actor, recordHop)} />

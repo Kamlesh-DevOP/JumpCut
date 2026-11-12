@@ -5,6 +5,7 @@ import { useGameStore } from '../store/gameStore.js';
 
 export function useGame() {
   const [isLoadingChoices, setIsLoadingChoices] = useState(false);
+  const [isLoadingHint, setIsLoadingHint] = useState(false);
   const [error, setError] = useState('');
   const game = useGameStore();
 
@@ -115,14 +116,34 @@ export function useGame() {
     }
   }
 
+  async function revealHint(getHint) {
+    if (!game.sessionId || isLoadingHint) {
+      return;
+    }
+
+    setIsLoadingHint(true);
+    setError('');
+
+    try {
+      const hint = await getHint(game.sessionId);
+      game.setHintResult(hint.session, hint.movies);
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError));
+    } finally {
+      setIsLoadingHint(false);
+    }
+  }
+
   return {
     ...game,
     error,
     isLoadingChoices,
+    isLoadingHint,
     loadCast,
     loadActorMovies,
     selectActor,
     selectMovie,
-    undo
+    undo,
+    revealHint
   };
 }

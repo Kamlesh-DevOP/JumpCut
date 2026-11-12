@@ -4,6 +4,7 @@ import express from 'express';
 import { config } from './config/env.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { actorRouter } from './routes/actor.routes.js';
+import { friendsRouter } from './routes/friends.routes.js';
 import { healthRouter } from './routes/health.routes.js';
 import { movieRouter } from './routes/movie.routes.js';
 import { puzzleRouter } from './routes/puzzle.routes.js';
@@ -20,6 +21,7 @@ export function createApp() {
   app.use('/api/v1/movie', movieRouter);
   app.use('/api/v1/actor', actorRouter);
   app.use('/api/v1/session', sessionRouter);
+  app.use('/api/v1/friends', friendsRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

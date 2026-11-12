@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { isSupportedDifficulty, isSupportedLanguage } from '../constants/game.js';
 import { supabase } from '../db/supabase.js';
 import { verifyToken } from '../middleware/auth.js';
-import { getPlayableCast, getPlayableMovies } from '../services/gameplay.service.js';
+import { getPlayableCast, getPlayableMovies, getStarHintMovies } from '../services/gameplay.service.js';
 import { getActivePuzzle, getPuzzleBySlot } from '../services/puzzle.service.js';
 import { AppError } from '../utils/app-error.js';
 import { parseTmdbId } from '../utils/validation.js';
@@ -119,6 +119,22 @@ sessionRouter.patch('/:sessionId/undo', verifyToken, async (req, res, next) => {
   }
 });
 
+sessionRouter.get('/:sessionId/hint', verifyToken, async (req, res, next) => {
+  try {
+    const session = await getOwnedActiveSession(req.params.sessionId, req.user.id);
+    const puzzle = await getPuzzle(session.puzzle_slot, session.language);
+    const movies = await getStarHintMovies(puzzle.star_tmdb_id);
+    const updatedSession = await markHintUsed(session);
+
+    return res.json({
+      session: updatedSession,
+      movies
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 function validateGameOptions(language, difficulty) {
   if (!isSupportedLanguage(language)) {
     throw new AppError('INVALID_LANGUAGE', 'Language must be supported.', 400);
@@ -204,6 +220,26 @@ async function validateAndCanonicalizeHop(session, requestedHop) {
 
 async function getPuzzle(puzzleSlot, language) {
   return getPuzzleBySlot(puzzleSlot, language, 'puzzle_date, puzzle_slot, star_tmdb_id, optimal_hop_count, connector_actor_ids, optimal_path');
+}
+
+async function markHintUsed(session) {
+  if (session.hints_used > 0) {
+    return session;
+  }
+
+  const { data, error } = await supabase
+    .from('game_sessions')
+    .update({ hints_used: 1 })
+    .eq('id', session.id)
+    .eq('user_id', session.user_id)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
 }
 
 async function getStartMovieId(puzzleSlot, language) {

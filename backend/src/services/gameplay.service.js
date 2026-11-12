@@ -28,3 +28,18 @@ export async function getPlayableMovies(actorTmdbId) {
       vote_average: movie.vote_average
     }));
 }
+
+export async function getStarHintMovies(actorTmdbId) {
+  const credits = await getPersonMovieCredits(actorTmdbId);
+
+  return (credits.cast ?? [])
+    .filter((movie) => movie.id && movie.title)
+    .sort((left, right) => (right.popularity ?? 0) - (left.popularity ?? 0))
+    .slice(0, 5)
+    .map((movie) => ({
+      tmdb_id: movie.id,
+      title: movie.title,
+      poster_path: movie.poster_path,
+      year: movie.release_date ? Number(movie.release_date.slice(0, 4)) : null
+    }));
+}
