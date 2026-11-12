@@ -5,6 +5,7 @@ import json
 import os
 import random
 import time
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import timezone, datetime, timedelta
 from pathlib import Path
@@ -74,6 +75,7 @@ class GameGraph:
     graph: nx.Graph
     movies: dict[str, Movie]   # node_id -> Movie  (node_id = "m_{tmdb_id}")
     actors: dict[str, Actor]   # node_id -> Actor  (node_id = "a_{tmdb_id}")
+    actor_language_counts: dict[str, Counter[str]]
 
     def movie_node(self, tmdb_id: int) -> str:
         return f"m_{tmdb_id}"
@@ -350,6 +352,7 @@ def build_game_graph(
     G = nx.Graph()
     movies: dict[str, Movie] = {}
     actors: dict[str, Actor] = {}
+    actor_language_counts: dict[str, Counter[str]] = {}
 
     for lang_movies in all_movies.values():
         for movie in lang_movies:
@@ -367,7 +370,9 @@ def build_game_graph(
             if not G.has_node(actor_node):
                 G.add_node(actor_node, kind="actor")
                 actors[actor_node] = actor
+                actor_language_counts[actor_node] = Counter()
             G.add_edge(movie_node, actor_node)
+            actor_language_counts[actor_node][movies[movie_node].language] += 1
 
     # Remove isolated nodes (movies with no cast fetched, actors with no movies)
     isolated = list(nx.isolates(G))
@@ -375,7 +380,12 @@ def build_game_graph(
 
     print(f"Graph built: {G.number_of_nodes()} nodes, {G.number_of_edges()} edges "
           f"({len(movies)} movies, {len(actors)} actors, {len(isolated)} isolated removed)")
-    return GameGraph(graph=G, movies=movies, actors=actors)
+    return GameGraph(
+        graph=G,
+        movies=movies,
+        actors=actors,
+        actor_language_counts=actor_language_counts,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -459,7 +469,9 @@ def select_language_puzzle(
         # actors at 2 hops share a movie with a direct cast member. Both rejected.
         valid_star_nodes = [
             node for node, hops in lengths.items()
-            if hops in VALID_HOPS and G.nodes[node]["kind"] == "actor"
+            if hops in VALID_HOPS
+            and G.nodes[node]["kind"] == "actor"
+            and actor_has_primary_language(node, lang_code, game_graph)
         ]
 
         if not valid_star_nodes:
@@ -493,6 +505,15 @@ def select_language_puzzle(
         f"Could not select a valid puzzle for '{language}' after {MAX_RETRIES_PER_LANGUAGE} attempts. "
         f"Try increasing PAGES_PER_LANGUAGE or lowering MIN_VOTE_COUNT."
     )
+
+
+def actor_has_primary_language(actor_node: str, language_code: str, game_graph: GameGraph) -> bool:
+    language_counts = game_graph.actor_language_counts.get(actor_node)
+    if not language_counts:
+        return False
+
+    target_count = language_counts.get(language_code, 0)
+    return target_count > 0 and target_count == max(language_counts.values())
 
 
 def _weighted_actor_choice(actor_nodes: list[str], game_graph: GameGraph) -> str:
