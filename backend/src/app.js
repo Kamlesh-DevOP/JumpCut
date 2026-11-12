@@ -9,6 +9,7 @@ import { healthRouter } from './routes/health.routes.js';
 import { movieRouter } from './routes/movie.routes.js';
 import { puzzleRouter } from './routes/puzzle.routes.js';
 import { sessionRouter } from './routes/session.routes.js';
+import { userRouter } from './routes/user.routes.js';
 
 export function createApp() {
   const app = express();
@@ -22,6 +23,7 @@ export function createApp() {
   app.use('/api/v1/actor', actorRouter);
   app.use('/api/v1/session', sessionRouter);
   app.use('/api/v1/friends', friendsRouter);
+  app.use('/api/v1/user', userRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

@@ -1,8 +1,10 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import { AuthForm } from './components/AuthForm.jsx';
 
 export function Login() {
+  const location = useLocation();
+
   return (
     <section className="mx-auto max-w-md space-y-5 py-5">
       <div>
@@ -12,7 +14,7 @@ export function Login() {
       <AuthForm mode="login" />
       <p className="text-sm text-parchment/55">
         New to JumpCut?{' '}
-        <Link to="/auth/signup" className="font-medium text-amber underline">
+        <Link to="/auth/signup" state={location.state} className="font-medium text-amber underline">
           Create an account
         </Link>
       </p>

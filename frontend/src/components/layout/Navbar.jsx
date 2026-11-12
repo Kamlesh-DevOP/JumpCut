@@ -1,6 +1,8 @@
-import { Film, Trophy, UserRound, UsersRound } from 'lucide-react';
+import { Film, LogIn, LogOut, Trophy, UserRound, UsersRound } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
+import { useAuth } from '../../hooks/useAuth.js';
+import { supabase } from '../../lib/supabase.js';
 import { useGameStore } from '../../store/gameStore.js';
 
 const links = [
@@ -12,6 +14,11 @@ const links = [
 
 export function Navbar() {
   const { hasStarted, language, difficulty } = useGameStore();
+  const { isLoading, user } = useAuth();
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+  }
 
   return (
     <header className="border-b border-card-border bg-noir">
@@ -38,6 +45,21 @@ export function Navbar() {
             >
               <Icon aria-hidden="true" size={16} />
               {label}
+            </NavLink>
+          ))}
+          {!isLoading && (user ? (
+            <button
+              className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-ash hover:text-amber"
+              type="button"
+              onClick={handleSignOut}
+            >
+              <LogOut aria-hidden="true" size={16} />
+              Sign out
+            </button>
+          ) : (
+            <NavLink className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-ash hover:text-amber" to="/auth/login">
+              <LogIn aria-hidden="true" size={16} />
+              Log in
             </NavLink>
           ))}
         </div>

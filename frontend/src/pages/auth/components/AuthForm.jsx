@@ -1,4 +1,6 @@
+import { Globe2 } from 'lucide-react';
 import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { Button } from '../../../components/ui/Button.jsx';
 import { hasSupabaseConfig, supabase } from '../../../lib/supabase.js';
@@ -10,6 +12,9 @@ export function AuthForm({ mode }) {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSignup = mode === 'signup';
+  const navigate = useNavigate();
+  const location = useLocation();
+  const returnPath = typeof location.state?.from === 'string' ? location.state.from : '/profile';
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -22,12 +27,33 @@ export function AuthForm({ mode }) {
       return;
     }
 
-    const { error } = isSignup
+    const { data, error } = isSignup
       ? await supabase.auth.signUp({ email, password, options: { data: { username } } })
       : await supabase.auth.signInWithPassword({ email, password });
 
-    setMessage(error ? error.message : isSignup ? 'Check your email to confirm signup.' : 'Logged in.');
+    if (error) {
+      setMessage(error.message);
+    } else if (data.session) {
+      navigate(returnPath, { replace: true });
+    } else {
+      setMessage('Check your email to confirm your account, then log in.');
+    }
     setIsSubmitting(false);
+  }
+
+  async function handleGoogleLogin() {
+    setMessage('');
+    setIsSubmitting(true);
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/profile` }
+    });
+
+    if (error) {
+      setMessage(error.message);
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -65,7 +91,10 @@ export function AuthForm({ mode }) {
       </label>
       {message && <p className="border border-amber/30 bg-amber/10 p-3 text-sm text-parchment/80">{message}</p>}
       <Button type="submit" disabled={isSubmitting} className="w-full">
-        {isSubmitting ? 'Working' : isSignup ? 'Create account' : 'Log in'}
+        {isSubmitting ? 'Working...' : isSignup ? 'Create account' : 'Log in'}
+      </Button>
+      <Button type="button" disabled={isSubmitting} className="w-full" variant="secondary" onClick={handleGoogleLogin}>
+        <Globe2 aria-hidden="true" size={16} /> Continue with Google
       </Button>
     </form>
   );

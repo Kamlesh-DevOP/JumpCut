@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { Footer } from './components/layout/Footer.jsx';
 import { Navbar } from './components/layout/Navbar.jsx';
+import { RequireAuth } from './components/auth/RequireAuth.jsx';
 import { Friends } from './pages/Friends.jsx';
 import { Home } from './pages/Home.jsx';
 import { Leaderboard } from './pages/Leaderboard.jsx';
@@ -21,7 +22,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/play" element={<Play />} />
+            <Route path="/play" element={<RequireAuth><Play /></RequireAuth>} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/friends" element={<Friends />} />
             <Route path="/profile" element={<Profile />} />
