@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import random
+import sys
 import time
 from collections import Counter
 from dataclasses import dataclass, field
@@ -94,6 +95,7 @@ class SelectedPuzzle:
     star: Actor
     optimal_hop_count: int
     connector_actor_ids: list[int]
+    optimal_path: list[dict]
 
     def to_supabase_row(self) -> dict:
         return {
@@ -106,6 +108,7 @@ class SelectedPuzzle:
             "star_name": self.star.name,
             "optimal_hop_count": self.optimal_hop_count,
             "connector_actor_ids": self.connector_actor_ids,
+            "optimal_path": self.optimal_path,
         }
 
 
@@ -432,7 +435,7 @@ def select_all_puzzles(
     for lang_name in SUPPORTED_LANGUAGES:
         print(f"\n[{lang_name}] Selecting puzzle...")
         puzzle = select_language_puzzle(game_graph, connector_nodes, lang_name, puzzle_slot)
-        print(f"[{lang_name}] ✓ Start: '{puzzle.start_movie.title}' → "
+        print(f"[{lang_name}] Selected: '{puzzle.start_movie.title}' -> "
               f"Star: '{puzzle.star.name}' | {puzzle.optimal_hop_count} hops | "
               f"{len(puzzle.connector_actor_ids)} connectors hidden in Hard mode")
         puzzles.append(puzzle)
@@ -500,6 +503,7 @@ def select_language_puzzle(
             star=game_graph.actors[star_node],
             optimal_hop_count=optimal_hops,
             connector_actor_ids=connector_actor_tmdb_ids,
+            optimal_path=build_optimal_path(all_paths[0], game_graph),
         )
 
     raise RuntimeError(
@@ -515,6 +519,28 @@ def actor_has_primary_language(actor_node: str, language_code: str, game_graph: 
 
     target_count = language_counts.get(language_code, 0)
     return target_count > 0 and target_count == max(language_counts.values())
+
+
+def build_optimal_path(path_nodes: list[str], game_graph: GameGraph) -> list[dict]:
+    path = []
+    for node in path_nodes:
+        if node in game_graph.movies:
+            movie = game_graph.movies[node]
+            path.append({
+                "type": "movie",
+                "tmdb_id": movie.tmdb_id,
+                "name": movie.title,
+                "poster_path": movie.poster_path,
+            })
+        else:
+            actor = game_graph.actors[node]
+            path.append({
+                "type": "actor",
+                "tmdb_id": actor.tmdb_id,
+                "name": actor.name,
+                "poster_path": actor.profile_path,
+            })
+    return path
 
 
 def _weighted_actor_choice(actor_nodes: list[str], game_graph: GameGraph) -> str:
@@ -620,6 +646,9 @@ def resolve_puzzle_slot(slot: str | None, legacy_date: str | None) -> str:
 
 
 def main() -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(errors="replace")
+
     args = parse_args()
     load_dotenv(ROOT / ".env")
     random.seed(args.seed)

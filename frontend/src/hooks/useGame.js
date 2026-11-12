@@ -62,8 +62,7 @@ export function useGame() {
       game.syncSession(session);
 
       if (session.status !== 'solved') {
-        const response = await api.get(`/api/v1/actor/${actor.tmdb_id}/movies`);
-        game.setActorMovies(response.data.movies);
+        await loadActorMovies(actor);
       }
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));
@@ -102,6 +101,13 @@ export function useGame() {
     try {
       const session = await undoSession(game.sessionId);
       game.syncSession(session);
+
+      const lastHop = session.path.at(-1);
+      if (lastHop?.type === 'actor') {
+        await loadActorMovies({ tmdb_id: lastHop.tmdb_id, name: lastHop.name, profile_path: lastHop.poster_path });
+      } else {
+        await loadCast(lastHop ? { tmdb_id: lastHop.tmdb_id, title: lastHop.name, poster_path: lastHop.poster_path } : game.puzzle?.start_movie);
+      }
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));
     } finally {

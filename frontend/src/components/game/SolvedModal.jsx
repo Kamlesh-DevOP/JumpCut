@@ -1,18 +1,9 @@
-import { Copy, Trophy } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowRight, Clapperboard, Trophy } from 'lucide-react';
 
-import { createShareText } from '../../utils/share.js';
 import { Button } from '../ui/Button.jsx';
 import { Modal } from '../ui/Modal.jsx';
 
-export function SolvedModal({ isOpen, game }) {
-  const [copied, setCopied] = useState(false);
-  const shareText = createShareText(game);
-
-  async function copyShareText() {
-    await navigator.clipboard?.writeText(shareText);
-    setCopied(true);
-  }
+export function SolvedModal({ isOpen, game, onMainMenu }) {
 
   return (
     <Modal isOpen={isOpen}>
@@ -40,12 +31,29 @@ export function SolvedModal({ isOpen, game }) {
             <p className="font-display mt-1 text-3xl font-bold">{game.puzzle?.optimal_hop_count ?? '—'}</p>
           </div>
         </div>
-        <div className="border-l-2 border-amber bg-deep-noir px-4 py-3 text-sm leading-6 text-parchment/70">
-          Your result is saved for this thirty-minute puzzle.
+        <div className="space-y-2 border border-card-border bg-deep-noir p-4">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-amber">Optimal path</p>
+            <p className="text-xs text-ash">{game.puzzle?.optimal_hop_count ?? 0} jumps</p>
+          </div>
+          {game.optimalPath?.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {game.optimalPath.map((entry, index) => (
+                <span key={`${entry.type}-${entry.tmdb_id}-${index}`} className="inline-flex items-center gap-2">
+                  <span className={`rounded-sm px-2 py-1 text-xs ${entry.type === 'movie' ? 'bg-card-surface text-amber' : 'bg-amber/10 text-parchment'}`}>
+                    {entry.name}
+                  </span>
+                  {index < game.optimalPath.length - 1 && <ArrowRight size={13} className="text-ash" />}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm leading-6 text-parchment/60">This puzzle was generated before optimal routes were stored.</p>
+          )}
         </div>
-        <Button onClick={copyShareText} className="w-full">
-          <Copy size={16} />
-          {copied ? 'Result copied' : 'Copy result'}
+        <Button onClick={onMainMenu} className="w-full">
+          <Clapperboard size={16} />
+          Back to game selection
         </Button>
       </div>
     </Modal>

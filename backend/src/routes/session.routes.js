@@ -14,11 +14,11 @@ sessionRouter.post('/start', verifyToken, async (req, res, next) => {
   try {
     const { language, difficulty } = req.body ?? {};
     validateGameOptions(language, difficulty);
-    const puzzle = await getActivePuzzle(language, 'puzzle_slot, puzzle_date');
+    const puzzle = await getActivePuzzle(language, 'puzzle_slot, puzzle_date, optimal_path');
     const existing = await findSession(req.user.id, puzzle.puzzle_slot, language, difficulty);
 
     if (existing) {
-      return res.json(existing);
+      return res.json(withSolvedPath(existing, puzzle));
     }
 
     const { data: session, error } = await supabase
@@ -35,7 +35,8 @@ sessionRouter.post('/start', verifyToken, async (req, res, next) => {
 
     if (error) {
       if (error.code === '23505') {
-        return res.json(await findSession(req.user.id, puzzle.puzzle_slot, language, difficulty));
+        const resumed = await findSession(req.user.id, puzzle.puzzle_slot, language, difficulty);
+        return res.json(withSolvedPath(resumed, puzzle));
       }
       throw error;
     }
@@ -79,7 +80,7 @@ sessionRouter.patch('/:sessionId/hop', verifyToken, async (req, res, next) => {
       await recordSolvedSession(updated, completedAt);
     }
 
-    return res.json(updated);
+    return res.json(solved ? { ...updated, optimal_path: puzzle.optimal_path } : updated);
   } catch (error) {
     return next(error);
   }
@@ -202,7 +203,7 @@ async function validateAndCanonicalizeHop(session, requestedHop) {
 }
 
 async function getPuzzle(puzzleSlot, language) {
-  return getPuzzleBySlot(puzzleSlot, language, 'puzzle_date, puzzle_slot, star_tmdb_id, optimal_hop_count, connector_actor_ids');
+  return getPuzzleBySlot(puzzleSlot, language, 'puzzle_date, puzzle_slot, star_tmdb_id, optimal_hop_count, connector_actor_ids, optimal_path');
 }
 
 async function getStartMovieId(puzzleSlot, language) {
@@ -212,6 +213,10 @@ async function getStartMovieId(puzzleSlot, language) {
 
 function roundScore(optimalHopCount, hopCount) {
   return Math.min(10, Math.round((optimalHopCount / hopCount) * 1000) / 100);
+}
+
+function withSolvedPath(session, puzzle) {
+  return session?.status === 'solved' ? { ...session, optimal_path: puzzle.optimal_path } : session;
 }
 
 async function recordSolvedSession(session, completedAt) {

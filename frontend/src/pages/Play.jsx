@@ -39,13 +39,13 @@ export function Play() {
   }
 
   useEffect(() => {
-    if (game.hasStarted && game.status === 'in_progress' && game.view === 'movie_cast' && game.currentMovie && game.cast.length === 0) {
+    if (!game.error && !game.isLoadingChoices && game.hasStarted && game.status === 'in_progress' && game.view === 'movie_cast' && game.currentMovie && game.cast.length === 0) {
       game.loadCast(game.currentMovie);
     }
-    if (game.hasStarted && game.status === 'in_progress' && game.view === 'actor_movies' && game.currentActor && game.actorMovies.length === 0) {
+    if (!game.error && !game.isLoadingChoices && game.hasStarted && game.status === 'in_progress' && game.view === 'actor_movies' && game.currentActor && game.actorMovies.length === 0) {
       game.loadActorMovies(game.currentActor);
     }
-  }, [game.hasStarted, game.status, game.view, game.currentMovie?.tmdb_id, game.currentActor?.tmdb_id]);
+  }, [game.hasStarted, game.status, game.view, game.currentMovie?.tmdb_id, game.currentActor?.tmdb_id, game.isLoadingChoices, game.error]);
 
   if (!store.hasStarted) {
     return (
@@ -107,7 +107,7 @@ export function Play() {
       {!game.isLoadingChoices && game.view === 'actor_movies' && (
         <MovieGrid movies={game.actorMovies} onSelectMovie={(movie) => game.selectMovie(movie, recordHop)} />
       )}
-      <SolvedModal isOpen={game.status === 'solved'} game={game} />
+      <SolvedModal isOpen={game.status === 'solved'} game={game} onMainMenu={store.resetGame} />
     </section>
   );
 }
