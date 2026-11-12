@@ -8,6 +8,8 @@ const languageCards = [
   { name: 'English', script: 'EN', code: 'EN' }
 ];
 
+const languageValues = ['tamil', 'telugu', 'hindi', 'english'];
+
 export function Home() {
   return (
     <section className="film-grain -mx-4 flex min-h-[calc(100vh-9rem)] flex-col justify-center border-y border-card-border px-4 py-12 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
@@ -42,8 +44,8 @@ export function Home() {
             <span>Four paths live</span>
           </div>
           <div className="grid grid-cols-2 gap-px bg-card-border">
-            {languageCards.map((language) => (
-              <Link key={language.name} to="/play" className="group min-h-36 bg-card-surface p-4 transition hover:bg-noir">
+            {languageCards.map((language, index) => (
+              <Link key={language.name} to={`/play?language=${languageValues[index]}`} className="group min-h-36 bg-card-surface p-4 transition hover:bg-noir">
                 <p className="text-xs font-medium text-amber">{language.code}</p>
                 <p className="mt-7 font-display text-2xl text-parchment group-hover:text-amber">{language.name}</p>
                 <p className="mt-1 text-sm text-ash">{language.script}</p>

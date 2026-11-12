@@ -130,7 +130,7 @@ class TmdbClient:
         for attempt in range(retries):
             try:
                 time.sleep(TMDB_SLEEP)
-                response = self.session.get(url, params=params, timeout=30)
+                response = self.session.get(url, params=params, timeout=100)
                 if response.status_code == 429:
                     wait = int(response.headers.get("Retry-After", 10))
                     print(f"  Rate limited. Sleeping {wait}s...")

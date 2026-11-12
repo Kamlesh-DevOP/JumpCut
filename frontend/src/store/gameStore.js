@@ -59,6 +59,7 @@ export const useGameStore = create((set, get) => ({
   setActorMovies: (actorMovies) => set({ actorMovies }),
   setHintResult: (session, movies) => set({ hintsUsed: session.hints_used ?? 0, hintMovies: movies, isHintVisible: true }),
   setHintVisibility: (isHintVisible) => set({ isHintVisible }),
+  chooseLanguage: (language) => set({ ...initialState, language }),
   resetGame: () => set(initialState)
 }));
 

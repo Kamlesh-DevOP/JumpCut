@@ -1,5 +1,6 @@
 import { Check, Clapperboard, Lightbulb, RotateCcw } from 'lucide-react';
 import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { CastGrid } from '../components/game/CastGrid.jsx';
 import { HopCounter } from '../components/game/HopCounter.jsx';
@@ -27,11 +28,23 @@ const difficulties = [
   { value: 'hard', label: 'Hard' }
 ];
 
+const languageValues = new Set(languages.map((language) => language.value));
+
 export function Play() {
   const { loadPuzzle, isLoading, error: puzzleError } = usePuzzle();
   const { startSession, recordHop, undo, getHint } = useSession();
   const game = useGame();
   const store = useGameStore();
+  const [searchParams] = useSearchParams();
+  const requestedLanguage = searchParams.get('language');
+  const selectedLanguage = languageValues.has(requestedLanguage) ? requestedLanguage : null;
+  const isChangingLanguage = Boolean(selectedLanguage && selectedLanguage !== store.language);
+
+  useEffect(() => {
+    if (isChangingLanguage) {
+      store.chooseLanguage(selectedLanguage);
+    }
+  }, [isChangingLanguage, selectedLanguage, store]);
 
   async function beginGame() {
     const puzzle = await loadPuzzle(store.language);
@@ -40,13 +53,21 @@ export function Play() {
   }
 
   useEffect(() => {
+    if (isChangingLanguage) {
+      return;
+    }
+
     if (!game.error && !game.isLoadingChoices && game.hasStarted && game.status === 'in_progress' && game.view === 'movie_cast' && game.currentMovie && game.cast.length === 0) {
       game.loadCast(game.currentMovie);
     }
     if (!game.error && !game.isLoadingChoices && game.hasStarted && game.status === 'in_progress' && game.view === 'actor_movies' && game.currentActor && game.actorMovies.length === 0) {
       game.loadActorMovies(game.currentActor);
     }
-  }, [game.hasStarted, game.status, game.view, game.currentMovie?.tmdb_id, game.currentActor?.tmdb_id, game.isLoadingChoices, game.error]);
+  }, [game.hasStarted, game.status, game.view, game.currentMovie?.tmdb_id, game.currentActor?.tmdb_id, game.isLoadingChoices, game.error, isChangingLanguage]);
+
+  if (isChangingLanguage) {
+    return <Spinner label="Opening selected cinema" />;
+  }
 
   if (!store.hasStarted) {
     return (
