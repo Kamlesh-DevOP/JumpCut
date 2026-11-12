@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+a,
+input,
+select {
+  font: inherit;
+}
+
+.poster-aspect {
+  aspect-ratio: 2 / 3;
+}
