@@ -2,7 +2,7 @@ name: Generate JumpCut Puzzles
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -34,7 +34,7 @@ jobs:
       - name: Install pipeline dependencies
         run: pip install -r pipeline/requirements.txt
 
-      - name: Generate the next five-minute puzzle slot
+      - name: Generate the next thirty-minute puzzle slot
         working-directory: pipeline
         env:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}

@@ -1,42 +1,51 @@
 import { Copy, Trophy } from 'lucide-react';
+import { useState } from 'react';
 
 import { createShareText } from '../../utils/share.js';
 import { Button } from '../ui/Button.jsx';
 import { Modal } from '../ui/Modal.jsx';
 
 export function SolvedModal({ isOpen, game }) {
+  const [copied, setCopied] = useState(false);
   const shareText = createShareText(game);
 
   async function copyShareText() {
     await navigator.clipboard?.writeText(shareText);
+    setCopied(true);
   }
 
   return (
     <Modal isOpen={isOpen}>
-      <div className="space-y-5">
-        <div className="flex items-center gap-3">
-          <div className="grid h-12 w-12 place-items-center rounded-lg bg-marigold text-ink">
-            <Trophy size={24} />
+      <div className="space-y-6 text-parchment">
+        <div className="flex items-center gap-4 border-b border-card-border pb-5">
+          <div className="grid h-14 w-14 place-items-center rounded-full bg-amber text-noir">
+            <Trophy size={28} />
           </div>
           <div>
-            <p className="text-sm font-bold uppercase text-stone-500">Solved</p>
-            <h2 className="text-2xl font-black">Reached The Star</h2>
+            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-amber/80">Puzzle complete</p>
+            <h2 className="font-display text-3xl font-bold">You reached The Star.</h2>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-lg bg-stone-100 p-4">
-            <p className="text-xs font-bold uppercase text-stone-500">Jumps</p>
-            <p className="text-3xl font-black">{game.hopCount}</p>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="border border-card-border bg-card-surface p-3">
+            <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-ash">Jumps</p>
+            <p className="font-display mt-1 text-3xl font-bold">{game.hopCount}</p>
           </div>
-          <div className="rounded-lg bg-stone-100 p-4">
-            <p className="text-xs font-bold uppercase text-stone-500">Score</p>
-            <p className="text-3xl font-black">{Number(game.score ?? 0).toFixed(2)}</p>
+          <div className="border border-amber/40 bg-amber/10 p-3">
+            <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-amber">Score</p>
+            <p className="font-display mt-1 text-3xl font-bold text-amber">{Number(game.score ?? 0).toFixed(2)}</p>
+          </div>
+          <div className="border border-card-border bg-card-surface p-3">
+            <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-ash">Optimal</p>
+            <p className="font-display mt-1 text-3xl font-bold">{game.puzzle?.optimal_hop_count ?? '—'}</p>
           </div>
         </div>
-        <pre className="whitespace-pre-wrap rounded-lg bg-ink p-4 text-sm text-white">{shareText}</pre>
+        <div className="border-l-2 border-amber bg-deep-noir px-4 py-3 text-sm leading-6 text-parchment/70">
+          Your result is saved for this thirty-minute puzzle.
+        </div>
         <Button onClick={copyShareText} className="w-full">
           <Copy size={16} />
-          Copy result
+          {copied ? 'Result copied' : 'Copy result'}
         </Button>
       </div>
     </Modal>

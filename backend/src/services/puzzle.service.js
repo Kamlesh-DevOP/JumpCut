@@ -18,7 +18,7 @@ export async function getPuzzleBySlot(puzzleSlot, language, columns = '*') {
     throw error;
   }
   if (!data) {
-    throw new AppError('PUZZLE_NOT_FOUND', 'No puzzle found for the current five-minute slot and language.', 404);
+    throw new AppError('PUZZLE_NOT_FOUND', 'No puzzle found for the current thirty-minute slot and language.', 404);
   }
 
   return data;

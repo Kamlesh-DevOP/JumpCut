@@ -1,37 +1,55 @@
+import { ArrowRight, Clapperboard, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+const languageCards = [
+  { name: 'Tamil', script: 'தமிழ்', code: 'TA' },
+  { name: 'Telugu', script: 'తెలుగు', code: 'TE' },
+  { name: 'Hindi', script: 'हिन्दी', code: 'HI' },
+  { name: 'English', script: 'EN', code: 'EN' }
+];
 
 export function Home() {
   return (
-    <section className="grid gap-8 py-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-      <div className="space-y-5">
-        <p className="text-sm font-bold uppercase text-ember">Daily movie connection puzzle</p>
-        <h1 className="max-w-3xl text-5xl font-black leading-tight text-ink sm:text-6xl">JumpCut</h1>
-        <p className="max-w-2xl text-lg leading-8 text-stone-700">
-          Start from today&apos;s movie, jump through actors and filmographies, and reach The Star in as few moves as possible.
-        </p>
-        <div className="flex flex-wrap gap-3">
-          <Link
-            to="/play"
-            className="inline-flex min-h-10 items-center justify-center rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-black"
-          >
-            Play today
-          </Link>
-          <Link
-            to="/leaderboard"
-            className="inline-flex min-h-10 items-center justify-center rounded-md border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-ink hover:border-ink"
-          >
-            View leaderboard
-          </Link>
+    <section className="film-grain -mx-4 flex min-h-[calc(100vh-9rem)] flex-col justify-center border-y border-card-border px-4 py-12 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+        <div className="space-y-7">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3 py-1.5 text-xs font-medium uppercase tracking-wide text-amber">
+            <Sparkles size={14} /> New puzzle every 30 minutes
+          </div>
+          <div className="space-y-3">
+            <p className="font-display text-xl text-crimson-light">The movie connection game</p>
+            <h1 className="font-display max-w-3xl text-5xl font-bold leading-[1.02] text-parchment sm:text-7xl">
+              Find the star.<br />
+              <span className="text-amber">Make the cut.</span>
+            </h1>
+          </div>
+          <p className="max-w-xl text-base leading-7 text-parchment/65 sm:text-lg">
+            Begin with one film. Follow its cast into another story. Reach The Star in the fewest possible jumps.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link to="/play" className="inline-flex min-h-11 items-center gap-2 rounded-md bg-amber px-5 py-3 text-sm font-medium text-noir transition hover:bg-[#e4a13b]">
+              <Clapperboard size={18} /> Play the current puzzle
+            </Link>
+            <Link to="/leaderboard" className="inline-flex min-h-11 items-center gap-2 rounded-md border border-card-border bg-card-surface px-5 py-3 text-sm font-medium text-parchment transition hover:border-amber hover:text-amber">
+              Explore scores <ArrowRight size={17} />
+            </Link>
+          </div>
         </div>
-      </div>
-      <div className="rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
-        <div className="grid gap-3">
-          {['Tamil', 'Telugu', 'English', 'Hindi'].map((language, index) => (
-            <div key={language} className="flex items-center justify-between rounded-md bg-stone-100 px-4 py-3">
-              <span className="font-bold">{language}</span>
-              <span className="text-sm text-stone-600">Puzzle {index + 1}</span>
-            </div>
-          ))}
+
+        <div className="border-y border-card-border py-3 lg:border">
+          <div className="flex items-center justify-between px-4 pb-3 text-xs font-medium uppercase tracking-wide text-ash">
+            <span>Choose your cinema</span>
+            <span>Four paths live</span>
+          </div>
+          <div className="grid grid-cols-2 gap-px bg-card-border">
+            {languageCards.map((language) => (
+              <Link key={language.name} to="/play" className="group min-h-36 bg-card-surface p-4 transition hover:bg-noir">
+                <p className="text-xs font-medium text-amber">{language.code}</p>
+                <p className="mt-7 font-display text-2xl text-parchment group-hover:text-amber">{language.name}</p>
+                <p className="mt-1 text-sm text-ash">{language.script}</p>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </section>

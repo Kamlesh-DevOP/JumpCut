@@ -3,6 +3,6 @@ export function getUtcDate(date = new Date()) {
 }
 
 export function getCurrentPuzzleSlot(date = new Date()) {
-  const slotMs = 5 * 60 * 1000;
+  const slotMs = 30 * 60 * 1000;
   return new Date(Math.floor(date.getTime() / slotMs) * slotMs).toISOString();
 }

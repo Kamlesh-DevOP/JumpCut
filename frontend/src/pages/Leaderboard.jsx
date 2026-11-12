@@ -2,17 +2,17 @@ import { Trophy } from 'lucide-react';
 
 export function Leaderboard() {
   return (
-    <section className="space-y-5">
+    <section className="space-y-5 py-4">
       <div>
-        <p className="text-sm font-bold uppercase text-ember">Rankings</p>
-        <h1 className="mt-2 text-4xl font-black">Leaderboard</h1>
+        <p className="text-xs font-medium uppercase tracking-[0.18em] text-amber">Rankings</p>
+        <h1 className="font-display mt-2 text-4xl font-bold text-parchment">Leaderboard</h1>
       </div>
-      <div className="rounded-lg border border-stone-200 bg-white p-6">
+      <div className="border border-card-border bg-card-surface p-6">
         <div className="flex items-center gap-3">
-          <Trophy className="text-marigold" size={28} />
+          <Trophy className="text-amber" size={28} />
           <div>
-            <h2 className="text-xl font-black">Daily, weekly, and monthly boards</h2>
-            <p className="mt-1 text-stone-600">Scoring views will connect after the backend leaderboard step.</p>
+            <h2 className="font-display text-xl font-medium text-parchment">Daily, weekly, and monthly boards</h2>
+            <p className="mt-1 text-parchment/55">Scoring views will connect after the backend leaderboard step.</p>
           </div>
         </div>
       </div>

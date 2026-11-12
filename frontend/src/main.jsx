@@ -16,7 +16,7 @@ import './styles.css';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <div className="min-h-screen bg-stone-50 text-ink">
+      <div className="min-h-screen bg-deep-noir text-parchment">
         <Navbar />
         <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <Routes>

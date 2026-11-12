@@ -31,39 +31,39 @@ export function AuthForm({ mode }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-stone-200 bg-white p-5">
+    <form onSubmit={handleSubmit} className="space-y-4 border border-card-border bg-card-surface p-5">
       {isSignup && (
         <label className="block">
-          <span className="text-sm font-bold text-stone-700">Username</span>
+          <span className="text-sm font-medium text-parchment">Username</span>
           <input
             value={username}
             onChange={(event) => setUsername(event.target.value)}
-            className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2"
+            className="mt-1 w-full border border-card-border bg-noir px-3 py-2 text-parchment outline-none focus:border-amber"
             required
           />
         </label>
       )}
       <label className="block">
-        <span className="text-sm font-bold text-stone-700">Email</span>
+        <span className="text-sm font-medium text-parchment">Email</span>
         <input
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2"
+          className="mt-1 w-full border border-card-border bg-noir px-3 py-2 text-parchment outline-none focus:border-amber"
           required
         />
       </label>
       <label className="block">
-        <span className="text-sm font-bold text-stone-700">Password</span>
+        <span className="text-sm font-medium text-parchment">Password</span>
         <input
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2"
+          className="mt-1 w-full border border-card-border bg-noir px-3 py-2 text-parchment outline-none focus:border-amber"
           required
         />
       </label>
-      {message && <p className="rounded-md bg-stone-100 p-3 text-sm font-semibold text-stone-700">{message}</p>}
+      {message && <p className="border border-amber/30 bg-amber/10 p-3 text-sm text-parchment/80">{message}</p>}
       <Button type="submit" disabled={isSubmitting} className="w-full">
         {isSubmitting ? 'Working' : isSignup ? 'Create account' : 'Log in'}
       </Button>

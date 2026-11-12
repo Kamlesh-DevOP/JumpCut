@@ -42,6 +42,7 @@ VALID_HOPS = {4, 5, 6, 7, 8, 9}        # acceptable optimal hop counts for a puz
 MAX_RETRIES_PER_LANGUAGE = 20    # attempts before giving up on a language
 TMDB_SLEEP = 0.075               # seconds between TMDB calls (~13 req/sec)
 CACHE_SAVE_INTERVAL = 100        # save cast cache every N movies
+PUZZLE_INTERVAL_MINUTES = 30
 
 ROOT = Path(__file__).resolve().parent
 CACHE_DIR = ROOT / "cache"
@@ -540,14 +541,14 @@ def write_puzzles(supabase: Client, puzzles: list[SelectedPuzzle]) -> None:
 # ---------------------------------------------------------------------------
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate JumpCut five-minute puzzles.")
+    parser = argparse.ArgumentParser(description="Generate JumpCut thirty-minute puzzles.")
     parser.add_argument(
         "--date",
         help="Legacy shortcut for a midnight UTC puzzle slot, YYYY-MM-DD.",
     )
     parser.add_argument(
         "--slot",
-        help="Five-minute UTC puzzle slot as ISO 8601, for example 2026-11-12T12:05:00Z.",
+        help="Thirty-minute UTC puzzle slot as ISO 8601, for example 2026-11-12T12:30:00Z.",
     )
     parser.add_argument(
         "--dry-run",
@@ -610,10 +611,10 @@ def resolve_puzzle_slot(slot: str | None, legacy_date: str | None) -> str:
         parsed = parsed.astimezone(timezone.utc)
     else:
         now = datetime.now(timezone.utc).replace(second=0, microsecond=0)
-        parsed = now.replace(minute=now.minute - (now.minute % 5)) + timedelta(minutes=5)
+        parsed = now.replace(minute=now.minute - (now.minute % PUZZLE_INTERVAL_MINUTES)) + timedelta(minutes=PUZZLE_INTERVAL_MINUTES)
 
-    if parsed.second or parsed.microsecond or parsed.minute % 5:
-        raise ValueError("Puzzle slots must start on a five-minute UTC boundary.")
+    if parsed.second or parsed.microsecond or parsed.minute % PUZZLE_INTERVAL_MINUTES:
+        raise ValueError("Puzzle slots must start on a thirty-minute UTC boundary.")
 
     return parsed.isoformat().replace("+00:00", "Z")
 

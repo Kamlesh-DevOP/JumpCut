@@ -1,4 +1,4 @@
-import { RotateCcw } from 'lucide-react';
+import { Check, Clapperboard, RotateCcw } from 'lucide-react';
 import { useEffect } from 'react';
 
 import { CastGrid } from '../components/game/CastGrid.jsx';
@@ -15,10 +15,10 @@ import { useSession } from '../hooks/useSession.js';
 import { useGameStore } from '../store/gameStore.js';
 
 const languages = [
-  { value: 'tamil', label: 'Tamil' },
-  { value: 'telugu', label: 'Telugu' },
-  { value: 'english', label: 'English' },
-  { value: 'hindi', label: 'Hindi' }
+  { value: 'tamil', label: 'Tamil', script: 'தமிழ்' },
+  { value: 'telugu', label: 'Telugu', script: 'తెలుగు' },
+  { value: 'english', label: 'English', script: 'EN' },
+  { value: 'hindi', label: 'Hindi', script: 'हिन्दी' }
 ];
 
 const difficulties = [
@@ -49,10 +49,11 @@ export function Play() {
 
   if (!store.hasStarted) {
     return (
-      <section className="mx-auto max-w-3xl space-y-6">
+      <section className="mx-auto max-w-3xl space-y-7 py-4">
         <div>
-          <p className="text-sm font-bold uppercase text-ember">Daily challenge</p>
-          <h1 className="mt-2 text-4xl font-black">Choose your puzzle</h1>
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-amber">New puzzle every 30 minutes</p>
+          <h1 className="font-display mt-2 text-4xl font-bold text-parchment">Choose your cinema.</h1>
+          <p className="mt-2 text-sm text-parchment/60">Language and difficulty lock once your path begins.</p>
         </div>
 
         <Selector
@@ -68,9 +69,9 @@ export function Play() {
           onChange={store.setDifficulty}
         />
 
-        {puzzleError && <p className="rounded-md bg-red-50 p-3 text-sm font-semibold text-red-700">{puzzleError}</p>}
+        {puzzleError && <p className="border border-[#E4B0A8] bg-[#F4DED9] p-3 text-sm text-[#64211E]">{puzzleError}</p>}
         <Button onClick={beginGame} disabled={isLoading} className="w-full sm:w-auto">
-          {isLoading ? 'Loading puzzle' : 'Start game'}
+          <Clapperboard size={16} /> {isLoading ? 'Loading puzzle' : 'Start this puzzle'}
         </Button>
       </section>
     );
@@ -79,16 +80,16 @@ export function Play() {
   return (
     <section className="space-y-5">
       <div className="grid gap-4 lg:grid-cols-[1fr_18rem]">
-        <StarBanner star={game.puzzle?.star} />
+        <StarBanner star={game.puzzle?.star} optimalHops={game.puzzle?.optimal_hop_count} />
         <HopCounter hopCount={game.hopCount} undosLeft={game.undosLeft} />
       </div>
       <PathTracker path={game.path} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-bold uppercase text-stone-500">
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-amber">
             {game.language} / {game.difficulty}
           </p>
-          <h1 className="text-3xl font-black">
+          <h1 className="font-display mt-1 text-3xl font-bold text-parchment">
             {game.view === 'movie_cast' ? game.currentMovie?.title : `${game.currentActor?.name}'s movies`}
           </h1>
         </div>
@@ -98,7 +99,7 @@ export function Play() {
         </Button>
       </div>
 
-      {game.error && <p className="rounded-md bg-red-50 p-3 text-sm font-semibold text-red-700">{game.error}</p>}
+      {game.error && <p className="border border-[#E4B0A8] bg-[#F4DED9] p-3 text-sm text-[#64211E]">{game.error}</p>}
       {game.isLoadingChoices && <Spinner label="Loading choices" />}
       {!game.isLoadingChoices && game.view === 'movie_cast' && (
         <CastGrid cast={game.cast} onSelectActor={(actor) => game.selectActor(actor, recordHop)} />
@@ -112,20 +113,31 @@ export function Play() {
 }
 
 function Selector({ label, options, value, onChange }) {
+  const isDifficulty = label === 'Difficulty';
+
   return (
     <div className="space-y-2">
-      <p className="text-sm font-bold text-stone-700">{label}</p>
-      <div className="grid gap-2 sm:grid-cols-4">
+      <p className="text-xs font-medium uppercase tracking-[0.16em] text-ash">{label}</p>
+      <div className={`grid gap-2 ${isDifficulty ? 'sm:max-w-md sm:grid-cols-2' : 'sm:grid-cols-4'}`}>
         {options.map((option) => (
           <button
             key={option.value}
             type="button"
             onClick={() => onChange(option.value)}
-            className={`rounded-md border px-4 py-3 text-sm font-bold ${
-              value === option.value ? 'border-ink bg-ink text-white' : 'border-stone-300 bg-white text-ink hover:border-ink'
+            aria-pressed={value === option.value}
+            className={`min-h-16 border px-4 py-3 text-left text-sm transition ${
+              value === option.value
+                ? isDifficulty && option.value === 'hard'
+                  ? 'border-[#F3D8D1] bg-[#F3D8D1] text-[#42150F] shadow-[0_0_0_1px_rgba(243,216,209,0.35)]'
+                  : 'border-amber bg-amber text-noir shadow-[0_0_0_1px_rgba(201,135,42,0.35)]'
+                : 'border-card-border bg-noir text-parchment hover:border-amber/60'
             }`}
           >
-            {option.label}
+            <span className="flex items-center justify-between gap-2">
+              <span className="font-medium">{option.label}</span>
+              {value === option.value && <Check size={17} strokeWidth={3} />}
+            </span>
+            {option.script && <span className={`mt-1 block text-xs ${value === option.value ? 'opacity-75' : 'text-ash'}`}>{option.script}</span>}
           </button>
         ))}
       </div>

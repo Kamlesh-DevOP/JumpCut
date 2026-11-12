@@ -1,6 +1,6 @@
 # JumpCut Pipeline
 
-This pipeline generates one puzzle per supported language for each five-minute
+This pipeline generates one puzzle per supported language for each thirty-minute
 UTC slot and writes the results to Supabase.
 
 ## Setup
@@ -27,10 +27,10 @@ Dry-run without writing to Supabase:
 python generate_puzzle.py --dry-run
 ```
 
-Generate for a specific five-minute slot:
+Generate for a specific thirty-minute slot:
 
 ```sh
-python generate_puzzle.py --slot 2026-11-12T12:05:00Z --dry-run
+python generate_puzzle.py --slot 2026-11-12T12:30:00Z --dry-run
 ```
 
 Write to Supabase:
@@ -41,7 +41,7 @@ python generate_puzzle.py
 
 The script caches TMDB Discover and cast responses under `pipeline/cache/`.
 
-Without `--slot`, the generator publishes the next five-minute UTC slot. The
-GitHub Actions workflow runs every five minutes and supplies the required
+Without `--slot`, the generator publishes the next thirty-minute UTC slot. The
+GitHub Actions workflow runs every thirty minutes and supplies the required
 `TMDB_API_KEY`, `SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY` repository
 secrets.

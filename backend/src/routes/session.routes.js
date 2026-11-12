@@ -236,7 +236,14 @@ async function recordSolvedSession(session, completedAt) {
   const { error: pointsError } = await supabase
     .from('user_points')
     .upsert(
-      { ...solvedRow, id: undefined, completed_at: undefined },
+      {
+        user_id: session.user_id,
+        puzzle_date: session.puzzle_date,
+        puzzle_slot: session.puzzle_slot,
+        language: session.language,
+        difficulty: session.difficulty,
+        score: session.score
+      },
       { onConflict: 'user_id,puzzle_slot,language,difficulty' }
     );
   if (pointsError) {
