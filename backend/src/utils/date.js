@@ -7,6 +7,11 @@ export function getCurrentPuzzleSlot(date = new Date()) {
   return new Date(Math.floor(date.getTime() / slotMs) * slotMs).toISOString();
 }
 
+export function getNextPuzzleSlot(date = new Date()) {
+  const slotMs = 30 * 60 * 1000;
+  return new Date((Math.floor(date.getTime() / slotMs) + 1) * slotMs).toISOString();
+}
+
 export function getIndiaDayBounds(date = new Date()) {
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: 'Asia/Kolkata',

@@ -6,6 +6,7 @@ import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { actorRouter } from './routes/actor.routes.js';
 import { friendsRouter } from './routes/friends.routes.js';
 import { healthRouter } from './routes/health.routes.js';
+import { generateUpcomingPuzzles } from './routes/internal.routes.js';
 import { leaderboardRouter } from './routes/leaderboard.routes.js';
 import { movieRouter } from './routes/movie.routes.js';
 import { puzzleRouter } from './routes/puzzle.routes.js';
@@ -18,6 +19,7 @@ export function createApp() {
   app.use(cors({ origin: config.corsOrigin }));
   app.use(express.json());
 
+  app.post('/api/v1/internal/puzzles/generate', generateUpcomingPuzzles);
   app.use('/api/v1/health', healthRouter);
   app.use('/api/v1/leaderboard', leaderboardRouter);
   app.use('/api/v1/puzzle', puzzleRouter);

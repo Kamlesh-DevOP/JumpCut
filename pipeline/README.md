@@ -41,7 +41,7 @@ python generate_puzzle.py
 
 The script caches TMDB Discover and cast responses under `pipeline/cache/`.
 
-Without `--slot`, the generator publishes the next thirty-minute UTC slot. The
-GitHub Actions workflow runs every thirty minutes and supplies the required
-`TMDB_API_KEY`, `SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY` repository
-secrets.
+Without `--slot`, the generator publishes the next thirty-minute UTC slot. In
+production, an external scheduler calls the protected backend generation
+endpoint; see `backend/README.md` for its required environment and request
+format.
