@@ -14,6 +14,11 @@ for (const key of requiredEnv) {
   }
 }
 
+const puzzleIntervalMinutes = Number(process.env.PUZZLE_INTERVAL_MINUTES ?? 30);
+if (!Number.isInteger(puzzleIntervalMinutes) || puzzleIntervalMinutes <= 0 || 60 % puzzleIntervalMinutes !== 0) {
+  throw new Error('PUZZLE_INTERVAL_MINUTES must be a positive divisor of 60.');
+}
+
 export const config = {
   port: Number(process.env.PORT ?? 3001),
   supabaseUrl: process.env.SUPABASE_URL,
@@ -24,5 +29,6 @@ export const config = {
   corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
   puzzleCronSecret: process.env.PUZZLE_CRON_SECRET ?? '',
   puzzlePythonBin: process.env.PUZZLE_PYTHON_BIN ?? (process.platform === 'win32' ? 'python' : 'python3'),
-  pipelineDirectory: process.env.PIPELINE_DIRECTORY ?? path.resolve(configDirectory, '../../../pipeline')
+  pipelineDirectory: process.env.PIPELINE_DIRECTORY ?? path.resolve(configDirectory, '../../../pipeline'),
+  puzzleIntervalMinutes
 };

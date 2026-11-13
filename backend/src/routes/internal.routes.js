@@ -22,7 +22,7 @@ export async function generateUpcomingPuzzles(req, res, next) {
       return res.status(202).json({ status: 'already_running' });
     }
 
-    const puzzleSlot = getNextPuzzleSlot();
+    const puzzleSlot = getNextPuzzleSlot(config.puzzleIntervalMinutes);
     const missingLanguages = await getMissingLanguages(puzzleSlot);
     if (missingLanguages.length === 0) {
       return res.json({ status: 'already_generated', puzzle_slot: puzzleSlot });

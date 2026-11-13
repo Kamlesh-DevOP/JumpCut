@@ -43,7 +43,7 @@ VALID_HOPS = {4, 5, 6, 7, 8, 9}        # acceptable optimal hop counts for a puz
 MAX_RETRIES_PER_LANGUAGE = 20    # attempts before giving up on a language
 TMDB_SLEEP = 0.075               # seconds between TMDB calls (~13 req/sec)
 CACHE_SAVE_INTERVAL = 100        # save cast cache every N movies
-PUZZLE_INTERVAL_MINUTES = 30
+DEFAULT_PUZZLE_INTERVAL_MINUTES = 30
 
 ROOT = Path(__file__).resolve().parent
 CACHE_DIR = ROOT / "cache"
@@ -624,7 +624,20 @@ def read_env(dry_run: bool) -> dict[str, str]:
     return env
 
 
-def resolve_puzzle_slot(slot: str | None, legacy_date: str | None) -> str:
+def read_puzzle_interval_minutes() -> int:
+    value = os.getenv("PUZZLE_INTERVAL_MINUTES", str(DEFAULT_PUZZLE_INTERVAL_MINUTES))
+    try:
+        interval = int(value)
+    except ValueError as error:
+        raise ValueError("PUZZLE_INTERVAL_MINUTES must be a positive divisor of 60.") from error
+
+    if interval <= 0 or 60 % interval:
+        raise ValueError("PUZZLE_INTERVAL_MINUTES must be a positive divisor of 60.")
+
+    return interval
+
+
+def resolve_puzzle_slot(slot: str | None, legacy_date: str | None, interval_minutes: int) -> str:
     if slot and legacy_date:
         raise ValueError("Use either --slot or --date, not both.")
 
@@ -637,10 +650,10 @@ def resolve_puzzle_slot(slot: str | None, legacy_date: str | None) -> str:
         parsed = parsed.astimezone(timezone.utc)
     else:
         now = datetime.now(timezone.utc).replace(second=0, microsecond=0)
-        parsed = now.replace(minute=now.minute - (now.minute % PUZZLE_INTERVAL_MINUTES)) + timedelta(minutes=PUZZLE_INTERVAL_MINUTES)
+        parsed = now.replace(minute=now.minute - (now.minute % interval_minutes)) + timedelta(minutes=interval_minutes)
 
-    if parsed.second or parsed.microsecond or parsed.minute % PUZZLE_INTERVAL_MINUTES:
-        raise ValueError("Puzzle slots must start on a thirty-minute UTC boundary.")
+    if parsed.second or parsed.microsecond or parsed.minute % interval_minutes:
+        raise ValueError(f"Puzzle slots must start on a {interval_minutes}-minute UTC boundary.")
 
     return parsed.isoformat().replace("+00:00", "Z")
 
@@ -653,7 +666,8 @@ def main() -> None:
     load_dotenv(ROOT / ".env")
     random.seed(args.seed)
 
-    puzzle_slot = resolve_puzzle_slot(args.slot, args.date)
+    puzzle_interval_minutes = read_puzzle_interval_minutes()
+    puzzle_slot = resolve_puzzle_slot(args.slot, args.date, puzzle_interval_minutes)
     languages = args.languages or list(SUPPORTED_LANGUAGES.keys())
     print(f"Generating puzzles for: {', '.join(languages)} | slot: {puzzle_slot}")
 

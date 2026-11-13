@@ -14,6 +14,7 @@ import { Spinner } from '../components/ui/Spinner.jsx';
 import { useGame } from '../hooks/useGame.js';
 import { usePuzzle } from '../hooks/usePuzzle.js';
 import { useSession } from '../hooks/useSession.js';
+import { usePuzzleCadence } from '../hooks/usePuzzleCadence.js';
 import { useGameStore } from '../store/gameStore.js';
 
 const languages = [
@@ -33,6 +34,7 @@ const languageValues = new Set(languages.map((language) => language.value));
 export function Play() {
   const { loadPuzzle, isLoading, error: puzzleError } = usePuzzle();
   const { startSession, recordHop, undo, getHint } = useSession();
+  const puzzleCadence = usePuzzleCadence();
   const game = useGame();
   const store = useGameStore();
   const [searchParams] = useSearchParams();
@@ -73,7 +75,7 @@ export function Play() {
     return (
       <section className="mx-auto max-w-3xl space-y-7 py-4">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-amber">New puzzle every 30 minutes</p>
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-amber">New puzzle every {puzzleCadence} minutes</p>
           <h1 className="font-display mt-2 text-4xl font-bold text-parchment">Choose your cinema.</h1>
           <p className="mt-2 text-sm text-parchment/60">Language and difficulty lock once your path begins.</p>
         </div>

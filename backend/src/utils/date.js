@@ -2,13 +2,13 @@ export function getUtcDate(date = new Date()) {
   return date.toISOString().slice(0, 10);
 }
 
-export function getCurrentPuzzleSlot(date = new Date()) {
-  const slotMs = 30 * 60 * 1000;
+export function getCurrentPuzzleSlot(intervalMinutes = 30, date = new Date()) {
+  const slotMs = intervalMinutes * 60 * 1000;
   return new Date(Math.floor(date.getTime() / slotMs) * slotMs).toISOString();
 }
 
-export function getNextPuzzleSlot(date = new Date()) {
-  const slotMs = 30 * 60 * 1000;
+export function getNextPuzzleSlot(intervalMinutes = 30, date = new Date()) {
+  const slotMs = intervalMinutes * 60 * 1000;
   return new Date((Math.floor(date.getTime() / slotMs) + 1) * slotMs).toISOString();
 }
 
